@@ -1,0 +1,45 @@
+services:
+  # 1. Base de Datos MySQL
+  mysql-minimarket:
+    image: mysql:8.0
+    container_name: mysql_minimarket_pro413
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: db_minimarket_pro413
+      MYSQL_USER: minimarket_user
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_persistencia:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # 2. Backend API (Quarkus)
+  minimarket-api:
+    build: ./backend-api
+    container_name: minimarket-api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - quarkus.datasource.jdbc.url=jdbc:mysql://mysql_minimarket_pro413:3306/db_minimarket_pro413
+      - quarkus.datasource.username=root
+      - quarkus.datasource.password=123456
+    depends_on:
+      - mysql-minimarket
+
+  # 3. Frontend (PHP)
+  minimarket-frontend:
+    build: ./frontend-php
+    container_name: minimarket-frontend
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      - API_URL=http://minimarket-api:8080/productos
+    depends_on:
+      - minimarket-api
+
+volumes:
+  mysql_persistencia:
