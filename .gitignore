@@ -1,9 +1,0 @@
-# Java / Quarkus
-**/target/
-*.class
-.mvn/
-
-# PHP / Entorno
-.env
-.vscode/
-*.log
